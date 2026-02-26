@@ -1,15 +1,18 @@
 # Command line task management tool
+
+# Library imports
 import sqlite3
 from pathlib import Path
 
+# Define the path to the SQLite database file
 DB_PATH = Path("data/tasks.db")
 
-
+# Function to get a connection to the SQLite database
 def get_connection():
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     return sqlite3.connect(DB_PATH)
 
-
+# Function to initialize the database, creates the tasks table if it doesn't exist
 def initialize_database():
     with get_connection() as con:
         con.execute(
@@ -28,7 +31,7 @@ def initialize_database():
         if "description" not in existing_columns:
             con.execute("ALTER TABLE tasks ADD COLUMN description TEXT NOT NULL DEFAULT ''")
 
-
+# Function to create a new task
 def create_task():
     title = input("Enter task title: ").strip()
     description = input("Enter task description: ").strip()
@@ -46,13 +49,14 @@ def create_task():
     print("Task created successfully!")
 
 
+# Function to get all active (incomplete) tasks
 def get_active_tasks():
     with get_connection() as con:
         return con.execute(
             "SELECT id, title, description FROM tasks WHERE completed = 0 ORDER BY id"
         ).fetchall()
 
-
+# Function to view all active tasks
 def view_tasks():
     tasks = get_active_tasks()
 
@@ -66,7 +70,7 @@ def view_tasks():
         print(f"\n{index}. {title}: {description}\n")
     print("===================")
 
-
+# Function to mark a task as completed
 def mark_task_completed():
     tasks = get_active_tasks()
     if not tasks:
@@ -91,7 +95,7 @@ def mark_task_completed():
 
     print(f"\nTask: {title} marked as completed and removed from the list.")
 
-
+# Main function to run the application
 def main():
     initialize_database()
 
